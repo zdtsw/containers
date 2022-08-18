@@ -2,6 +2,10 @@ name: Test PR
 
 on:
   pull_request:
+  push:
+    branches:
+      - test-sbom-action
+
 
 defaults:
   run:
@@ -38,11 +42,11 @@ jobs:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     steps:
-      # - name: Enable WSL on Windows for sbom
-      #   if: runner.os == 'Windows'
-      #   uses: Vampire/setup-wsl@v1
-      #   with:
-      #     distribution: Alpine
+      - name: Enable WSL on Windows for sbom
+        if: runner.os == 'Windows'
+        uses: Vampire/setup-wsl@v1
+        with:
+          distribution: Alpine
       - uses: actions/checkout@v3
       - name: Prepare Environment
         run: ${{ matrix.runs.prepare }}
@@ -70,7 +74,7 @@ jobs:
           sarif_file: 'scan_dockerimage_result.sarif'
       - name: Generate SBOM for Linux
         uses: anchore/sbom-action@v0
-        if: steps.scan.conclusion == 'success'
+        #if: steps.scan.conclusion == 'success'
         with:
           image: '${{ matrix.meta.entries[0].tags[0] }}'
           format: 'cyclonedx-json'
